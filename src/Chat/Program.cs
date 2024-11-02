@@ -15,10 +15,7 @@ try
     Console.Write("Server ID: ");
     Guid serverId = Guid.Parse(Console.ReadLine()!);
 
-    Console.Write("Room ID: ");
-    Guid roomId = Guid.Parse(Console.ReadLine()!);
-
-    await chatHub.JoinRoom(serverId, roomId);
+    await chatHub.JoinServer(username!, serverId);
 
     while (true)
     {
@@ -31,10 +28,9 @@ try
         Console.SetCursorPosition(0, cursorTop);
         Console.Write(new string(' ', Console.WindowWidth));
 
-        // İmleci tekrar temizlenen satırın başına yerleştirin
         Console.SetCursorPosition(0, cursorTop);
 
-        await chatHub.SendMessage(message, roomId);
+        await chatHub.SendMessage(serverId, message);
 
     }
 }

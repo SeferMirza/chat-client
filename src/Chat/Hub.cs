@@ -5,7 +5,8 @@ namespace Chat;
 public sealed class Hub
 {
     readonly HubConnection _connection;
-    string? clientId = string.Empty;
+    string? userId = string.Empty;
+    string? userName = string.Empty;
 
     public Hub()
     {
@@ -18,7 +19,7 @@ public sealed class Hub
     {
         await _connection.StartAsync();
 
-        Console.WriteLine("SignalR bağlantısı kuruldu.");
+        Console.WriteLine("Server connected.");
     }
 
     public void Subscribe()
@@ -26,7 +27,7 @@ public sealed class Hub
         _connection.On<Message>("ReceiveMessage", (message) =>
         {
             Console.Write($"[{message.SentAt}] ");
-            if(message.SenderId == clientId)
+            if(message.Sender == userName)
             {
                 Console.ForegroundColor = ConsoleColor.Blue;
                 Console.Write($"You: ");
@@ -34,7 +35,7 @@ public sealed class Hub
             else
             {
                 Console.ForegroundColor = ConsoleColor.Magenta;
-                Console.Write($"{message.SenderId}: ");
+                Console.Write($"{message.Sender}: ");
             }
 
             Console.ResetColor();
@@ -44,15 +45,16 @@ public sealed class Hub
         });
     }
 
-    public async Task SendMessage(string message, Guid roomId)
+    public async Task SendMessage(Guid serverId, string message)
     {
-        await _connection.InvokeAsync("SendMessage", roomId, message);
+        await _connection.InvokeAsync("SendMessage", serverId, message);
     }
 
-    public async Task JoinRoom(Guid serverId, Guid roomId)
+    public async Task JoinServer(string name, Guid serverId)
     {
-        clientId = await _connection.InvokeAsync<string>("JoinRoom", serverId, roomId);
-        Console.WriteLine($"{roomId} odasına katıldınız.");
+        userName = name;
+        userId = await _connection.InvokeAsync<string>("JoinServer", name, serverId);
+        Console.WriteLine($"You joined server '{serverId}' as '{name}'.");
     }
 
     public async Task DisposeAsync()

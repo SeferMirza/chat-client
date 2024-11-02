@@ -1,3 +1,3 @@
 namespace Chat;
 
-public record Message(Guid Id, string Content, string SenderId, Guid RoomId, DateTime SentAt);
+public record Message(Guid Id, string Content, string Sender, Guid ServerId, DateTime SentAt);
