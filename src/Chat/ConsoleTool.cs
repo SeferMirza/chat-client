@@ -2,19 +2,31 @@ namespace Chat;
 
 public class ConsoleTool : ITool
 {
-    public void Clear()
+    public void ClearFull()
     {
-        int cursorTop = Console.CursorTop - 1;
+        Console.Clear();
+    }
 
-        Console.SetCursorPosition(0, cursorTop);
-        Console.Write(new string(' ', Console.WindowWidth));
+    public void ClearLine(int lineCount)
+    {
+        int cursorTop = Console.CursorTop - lineCount;
+
+        for (int i = 0; i < lineCount; i++)
+        {
+            Console.SetCursorPosition(0, cursorTop + i);
+            Console.Write(new string(' ', Console.WindowWidth));
+        }
 
         Console.SetCursorPosition(0, cursorTop);
     }
 
-    public string Read()
+    public ConsoleKeyInfo ReadKey() => Console.ReadKey();
+
+    public string ReadLine() => Console.ReadLine() ?? string.Empty;
+
+    public void WriteLine(string text)
     {
-        return Console.ReadLine() ?? string.Empty;
+        Console.WriteLine(text);
     }
 
     public void Write(string text)
@@ -25,7 +37,10 @@ public class ConsoleTool : ITool
 
 public interface ITool
 {
-    string Read();
+    string ReadLine();
+    ConsoleKeyInfo ReadKey();
     void Write(string text);
-    void Clear();
+    void WriteLine(string text);
+    void ClearLine(int lineCount);
+    void ClearFull();
 }

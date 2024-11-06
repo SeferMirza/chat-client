@@ -1,25 +1,18 @@
 namespace Chat;
 
-public class App
+public class App(WindowStack windowStack, ITool _tool)
 {
-    readonly ConsoleTool tool = new();
     public async Task Run()
     {
-        var menu = new Menu([
-            new("Servers", ServerApi.GetServers),
-            new("Join", ChatConnection.Connect)
-        ]);
-
-        while (true)
+        _tool.WriteLine("Continuation will result in console clear! Use the (C) key to continue. Press another key to exit.");
+        var key = _tool.ReadKey().Key;
+        if(key == ConsoleKey.C)
         {
-            tool.Write(menu.Draw());
-            var input = tool.Read();
-            if(input == "/exit")
+            while ( true )
             {
-                break;
+                _tool.ClearFull();
+                await windowStack.Current.Open();
             }
-
-            await menu.Action(input);
         }
     }
 }
