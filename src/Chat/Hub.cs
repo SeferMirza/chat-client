@@ -2,18 +2,14 @@ using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Chat;
 
-public sealed class Hub
+public sealed class Hub(ITool tool)
 {
-    readonly HubConnection _connection;
-    string? userId = string.Empty;
-    string? userName = string.Empty;
-
-    public Hub()
-    {
-        _connection = new HubConnectionBuilder()
+    readonly HubConnection _connection = new HubConnectionBuilder()
             .WithUrl("http://localhost:5181/chatHub")
             .Build();
-    }
+    readonly ITool _tool = tool;
+    string? userId = string.Empty;
+    string? userName = string.Empty;
 
     public async Task Connect()
     {
@@ -26,22 +22,22 @@ public sealed class Hub
     {
         _connection.On<Message>("ReceiveMessage", (message) =>
         {
-            Console.Write($"[{message.SentAt}] ");
+            _tool.Write($"[{message.SentAt}] ");
             if(message.Sender == userName)
             {
                 Console.ForegroundColor = ConsoleColor.Blue;
-                Console.Write($"You: ");
+                _tool.Write($"You: ");
             }
             else
             {
                 Console.ForegroundColor = ConsoleColor.Magenta;
-                Console.Write($"{message.Sender}: ");
+                _tool.Write($"{message.Sender}: ");
             }
 
             Console.ResetColor();
 
-            Console.Write($"{message.Content}");
-            Console.WriteLine();
+            _tool.Write($"{message.Content}");
+            _tool.WriteLine("");
         });
     }
 
@@ -50,11 +46,13 @@ public sealed class Hub
         await _connection.InvokeAsync("SendMessage", serverId, message);
     }
 
-    public async Task JoinServer(string name, Guid serverId)
+    public async Task<List<Message>> JoinServer(string name, Guid serverId)
     {
         userName = name;
-        userId = await _connection.InvokeAsync<string>("JoinServer", name, serverId);
-        Console.WriteLine($"You joined server '{serverId}' as '{name}'.");
+        var oldMessages = await _connection.InvokeAsync<List<Message>>("JoinServer", name, serverId);
+        _tool.WriteLine($"You joined server '{serverId}' as '{name}'.");
+
+        return oldMessages;
     }
 
     public async Task DisposeAsync()

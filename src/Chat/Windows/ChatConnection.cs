@@ -1,37 +1,58 @@
 namespace Chat.Windows;
 
-public class ChatConnection(ITool _tool) : Window
+public class ChatConnection(ITool _tool, Hub chatHub) : Window
 {
     public override string Name => "Chat";
 
     public async override Task Open()
     {
-        var chatHub = new Hub();
         try
         {
+            Console.CursorVisible = true;
             chatHub.Subscribe();
 
             await chatHub.Connect();
 
-            _tool.Write("Kullanıcı Adınız: ");
-            string? username = _tool.ReadLine();
-
             _tool.Write("Server ID: ");
             Guid serverId = Guid.Parse(_tool.ReadLine()!);
 
-            await chatHub.JoinServer(username!, serverId);
+            _tool.Write("Username: ");
+            string? username = _tool.ReadLine();
+
+            var oldMessages = await chatHub.JoinServer(username!, serverId);
+            if (oldMessages is not null)
+            {
+                foreach (var message in oldMessages)
+                {
+                    _tool.Write($"[{message.SentAt}] ");
+                    if (message.Sender == username)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Blue;
+                        _tool.Write($"You: ");
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.Magenta;
+                        _tool.Write($"{message.Sender}: ");
+                    }
+
+                    Console.ResetColor();
+
+                    _tool.Write($"{message.Content}");
+                    _tool.WriteLine("");
+                }
+            }
 
             while (true)
             {
-                string message = _tool.ReadLine()!;
+                string message = _tool.ReadLine() ?? string.Empty;
 
                 if (message.Equals("/exit", StringComparison.CurrentCultureIgnoreCase))
                     break;
 
                 _tool.ClearLine(1);
-
-                await chatHub.SendMessage(serverId, message);
-
+                if (!message.Equals(string.Empty))
+                    await chatHub.SendMessage(serverId, message);
             }
         }
         catch (Exception ex)

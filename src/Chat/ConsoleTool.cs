@@ -1,10 +1,11 @@
 namespace Chat;
 
-public class ConsoleTool : ITool
+public class ConsoleTool(IConsoleInfo consoleInfo) : ITool
 {
     public void ClearFull()
     {
         Console.Clear();
+        consoleInfo.DecreaseHeight(consoleInfo.Height);
     }
 
     public void ClearLine(int lineCount)
@@ -18,21 +19,28 @@ public class ConsoleTool : ITool
         }
 
         Console.SetCursorPosition(0, cursorTop);
+        consoleInfo.DecreaseHeight(lineCount);
     }
 
     public ConsoleKeyInfo ReadKey() => Console.ReadKey();
 
-    public string ReadLine() => Console.ReadLine() ?? string.Empty;
+    public string ReadLine()
+    {
+        var input = Console.ReadLine() ?? string.Empty;
+        consoleInfo.IncreaseHeight(1);
+
+        return input;
+    }
 
     public void WriteLine(string text)
     {
         Console.WriteLine(text);
+        var newlinesCount = text.Split(Environment.NewLine).Length - 1;
+        consoleInfo.IncreaseHeight(1 + newlinesCount);
+
     }
 
-    public void Write(string text)
-    {
-        Console.Write(text);
-    }
+    public void Write(string text) => Console.Write(text);
 }
 
 public interface ITool

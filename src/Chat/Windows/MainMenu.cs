@@ -10,25 +10,24 @@ public class MainMenu(ITool tool, IEnumerable<IMainMenuOptions> mainMenuOptions)
 
     public override string Name => "MainMenu";
 
-    public override async Task Open()
+    public override Task Open()
     {
-        string result = string.Empty;
         Console.CursorVisible = false;
 
         for (int i = 0; i < _options.Count; i++)
         {
             if (i == _currentIndex)
-                result += $"> {_options[i].Name}\n";
+                _tool.WriteLine($"> {_options[i].Name}");
             else
-                result += $"  {_options[i].Name}\n";
+                _tool.WriteLine($"  {_options[i].Name}");
         }
-
-        _tool.Write(result);
 
         var key = _tool.ReadKey().Key;
 
         if(key == ConsoleKey.DownArrow) _currentIndex = (_currentIndex + 1) % _options.Count;
         else if(key == ConsoleKey.UpArrow) _currentIndex = (_currentIndex - 1 + _options.Count) % _options.Count;
-        else if(key == ConsoleKey.Enter) _options[_currentIndex].ExecuteAsync();
+        else if(key == ConsoleKey.Enter) _options[_currentIndex].Execute();
+
+        return Task.CompletedTask;
     }
 }
