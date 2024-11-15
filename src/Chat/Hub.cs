@@ -22,22 +22,7 @@ public sealed class Hub(ITool tool)
     {
         _connection.On<Message>("ReceiveMessage", (message) =>
         {
-            _tool.Write($"[{message.SentAt}] ");
-            if(message.Sender == userName)
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                _tool.Write($"You: ");
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Magenta;
-                _tool.Write($"{message.Sender}: ");
-            }
-
-            Console.ResetColor();
-
-            _tool.Write($"{message.Content}");
-            _tool.WriteLine("");
+            _tool.WriteChatMessage(message, userName);
         });
     }
 

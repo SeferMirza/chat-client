@@ -1,8 +1,8 @@
 namespace Chat.Windows;
 
-public class ChatConnection(ITool _tool, Hub chatHub) : Window
+public class ChatConnection(ITool _tool, Hub chatHub, IRouter _router) : Window
 {
-    public override string Name => "Chat";
+    public override string Name => nameof(ChatConnection);
 
     public async override Task Open()
     {
@@ -24,22 +24,7 @@ public class ChatConnection(ITool _tool, Hub chatHub) : Window
             {
                 foreach (var message in oldMessages)
                 {
-                    _tool.Write($"[{message.SentAt}] ");
-                    if (message.Sender == username)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Blue;
-                        _tool.Write($"You: ");
-                    }
-                    else
-                    {
-                        Console.ForegroundColor = ConsoleColor.Magenta;
-                        _tool.Write($"{message.Sender}: ");
-                    }
-
-                    Console.ResetColor();
-
-                    _tool.Write($"{message.Content}");
-                    _tool.WriteLine("");
+                    _tool.WriteChatMessage(message, username);
                 }
             }
 
@@ -48,9 +33,13 @@ public class ChatConnection(ITool _tool, Hub chatHub) : Window
                 string message = _tool.ReadLine() ?? string.Empty;
 
                 if (message.Equals("/exit", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    _router.Navigate(nameof(MainMenu));
                     break;
+                }
 
                 _tool.ClearLine(1);
+
                 if (!message.Equals(string.Empty))
                     await chatHub.SendMessage(serverId, message);
             }

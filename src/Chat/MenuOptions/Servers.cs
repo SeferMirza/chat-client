@@ -1,14 +1,13 @@
-using Microsoft.Extensions.DependencyInjection;
+using Chat.Windows;
 
 namespace Chat.MenuOptions;
 
-public class ServersOption(IServiceProvider provider) : IMainMenuOptions
+public class ServersOption(IRouter _router) : IMainMenuOptions
 {
-    Lazy<WindowStack> _windowStack = new(() => provider.GetRequiredService<WindowStack>());
     public string Name { get; } = "Servers";
 
     public void Execute()
     {
-        _windowStack.Value.Navigate(Name);
+        _router.Navigate(nameof(Servers));
     }
 }

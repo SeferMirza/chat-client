@@ -8,7 +8,7 @@ public class MainMenu(ITool tool, IEnumerable<IMainMenuOptions> mainMenuOptions)
     readonly List<IMainMenuOptions> _options = mainMenuOptions.ToList();
     int _currentIndex = 0;
 
-    public override string Name => "MainMenu";
+    public override string Name => nameof(MainMenu);
 
     public override Task Open()
     {

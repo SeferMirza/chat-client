@@ -1,13 +1,11 @@
 using System.Net.Http.Json;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Chat.Windows;
 
-public class Servers(ITool _tool, HttpClient _client, IServiceProvider provider) : Window
+public class Servers(ITool _tool, HttpClient _client, IRouter _router) : Window
 {
-    public override string Name => "Servers";
+    public override string Name => nameof(Servers);
     const string ServerUrl = "http://localhost:5181/chat";
-    Lazy<WindowStack> _windowStack = new(() => provider.GetRequiredService<WindowStack>());
 
     record ServerInfo(Guid ServerId, string ServerName);
     public override async Task Open()
@@ -26,7 +24,7 @@ public class Servers(ITool _tool, HttpClient _client, IServiceProvider provider)
             _tool.WriteLine($"{Environment.NewLine}Press ESC to return to the main menu");
             if(_tool.ReadKey().Key == ConsoleKey.Escape)
             {
-                _windowStack.Value.Navigate("MainMenu");
+                _router.Navigate("MainMenu");
             }
         }
         catch (Exception ex)
