@@ -9,9 +9,11 @@ public class ChatConnection(ITool _tool, Hub chatHub, IRouter _router) : Window
         try
         {
             Console.CursorVisible = true;
-            chatHub.Subscribe();
 
             await chatHub.Connect();
+
+            chatHub.Subscribe();
+
 
             _tool.Write("Server ID: ");
             Guid serverId = Guid.Parse(_tool.ReadLine()!);

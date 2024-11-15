@@ -4,7 +4,7 @@ using Chat.Windows;
 using Microsoft.Extensions.DependencyInjection;
 
 var serviceProvider = new ServiceCollection()
-    .AddSingleton<Hub>()
+    .AddTransient<Hub>()
     .AddKeyedSingleton<Window, MainMenu>(nameof(MainMenu))
     .AddKeyedSingleton<Window, Servers>(nameof(Servers))
     .AddKeyedSingleton<Window, ChatConnection>(nameof(ChatConnection))
