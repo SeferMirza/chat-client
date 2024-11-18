@@ -20,6 +20,7 @@ var serviceProvider = new ServiceCollection()
     .AddSingleton<IRouter, Router>()
     .AddSingleton<IConsoleInfo, ConsoleInfo>()
     .AddSingleton<HttpClient>()
+    .AddSingleton<ServerService>()
     .BuildServiceProvider();
 
 var app = serviceProvider.GetRequiredService<App>();
