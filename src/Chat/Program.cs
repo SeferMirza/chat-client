@@ -1,4 +1,5 @@
 ﻿using Chat;
+using Chat.Commands;
 using Chat.MenuOptions;
 using Chat.Windows;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,6 +10,9 @@ var serviceProvider = new ServiceCollection()
     .AddKeyedSingleton<Window, Servers>(nameof(Servers))
     .AddKeyedSingleton<Window, ChatConnection>(nameof(ChatConnection))
     .AddSingleton<IWindowManager, WindowManager>()
+    .AddSingleton<ICommand, ServerDetail>()
+    .AddSingleton<ICommand, ExitServer>()
+    .AddSingleton<CommandRegistry>()
     .AddSingleton<IMainMenuOptions, ServersOption>()
     .AddSingleton<IMainMenuOptions, ChatOption>()
     .AddSingleton<App>()
