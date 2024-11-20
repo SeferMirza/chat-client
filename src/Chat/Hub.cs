@@ -1,3 +1,4 @@
+using Chat.Exceptions;
 using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Chat;
@@ -28,7 +29,7 @@ public sealed class Hub(ITool tool)
     public void Subscribe()
     {
         if (_connection == null)
-            throw new InvalidOperationException("Connection is not established.");
+            throw new ConnectionException();
 
         _connection.On<Message>("ReceiveMessage", (message) =>
         {
@@ -39,7 +40,7 @@ public sealed class Hub(ITool tool)
     public async Task SendMessage(Guid serverId, string message)
     {
         if (_connection == null)
-            throw new InvalidOperationException("Connection is not established.");
+            throw new ConnectionException();
 
         await _connection.InvokeAsync("SendMessage", serverId, message);
     }
@@ -47,7 +48,7 @@ public sealed class Hub(ITool tool)
     public async Task<List<Message>> JoinServer(string name, Guid serverId)
     {
         if (_connection == null)
-            throw new InvalidOperationException("Connection is not established.");
+            throw new ConnectionException();
 
         userName = name;
         var oldMessages = await _connection.InvokeAsync<List<Message>>("JoinServer", name, serverId);

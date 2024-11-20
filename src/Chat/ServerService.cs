@@ -40,7 +40,7 @@ public class ServerService(HttpClient _client)
 
     public async Task<bool> CheckUsername(string username, Guid serverId)
     {
-        if(string.IsNullOrEmpty(username)) throw new ArgumentNullException(nameof(username));
+        if (string.IsNullOrEmpty(username)) throw new UsernameCannotBeNullException();
 
         var query = $"?serverId={serverId}&username={username}";
         var url = Path.Join(ServerUrl, "/username-is-valid", query);
@@ -73,14 +73,9 @@ public class ServerService(HttpClient _client)
             throw new ServerError(result.Error!, result.Message!);
         }
 
-        if(result.Data is JsonElement jsonElement)
+        return ((JsonElement)result.Data!).Deserialize<T>(options: new()
         {
-            return jsonElement.Deserialize<T>(options: new()
-            {
-                PropertyNameCaseInsensitive = true
-            });
-        }
-
-        throw new InvalidCastException();
+            PropertyNameCaseInsensitive = true
+        });
     }
 }
