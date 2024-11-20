@@ -1,3 +1,5 @@
+﻿using Chat.Exceptions;
+
 namespace Chat;
 
 public static class ConsoleToolExtensions
@@ -20,5 +22,36 @@ public static class ConsoleToolExtensions
 
         _tool.Write($"{message.Content}");
         _tool.WriteLine("");
+    }
+
+    public static void WriteHandledExceptionMessage(this ITool _tool, HandledException exception)
+    {
+        switch (exception.Level)
+        {
+            case ExceptionLevel.Error:
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                _tool.Write($"[ERROR] {exception.Title}: ");
+                Console.ForegroundColor = ConsoleColor.Red;
+                _tool.Write(exception.Message);
+                break;
+
+            default:
+                Console.ForegroundColor = ConsoleColor.DarkYellow;
+                _tool.Write($"[WARNING] {exception.Title}: ");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                _tool.Write(exception.Message);
+                break;
+        }
+        _tool.WriteLine(string.Empty);
+        Console.ResetColor();
+    }
+
+    public static void WriteUnhandledExceptionMessage(this ITool _tool, Exception exception)
+    {
+        Console.ForegroundColor = ConsoleColor.DarkRed;
+        _tool.Write("[ERROR] Unhandled Exception: ");
+        Console.ForegroundColor = ConsoleColor.Red;
+        _tool.Write("Something went wrong. Please report the problem!");
+        Console.ResetColor();
     }
 }

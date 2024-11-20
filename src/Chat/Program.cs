@@ -1,5 +1,6 @@
 ﻿using Chat;
 using Chat.Commands;
+using Chat.Exceptions;
 using Chat.MenuOptions;
 using Chat.Windows;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +22,7 @@ var serviceProvider = new ServiceCollection()
     .AddSingleton<IConsoleInfo, ConsoleInfo>()
     .AddSingleton<HttpClient>()
     .AddSingleton<ServerService>()
+    .AddSingleton<IExceptionHandler, GlobalExceptionHandler>()
     .BuildServiceProvider();
 
 var app = serviceProvider.GetRequiredService<App>();

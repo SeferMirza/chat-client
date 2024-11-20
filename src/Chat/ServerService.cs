@@ -1,4 +1,6 @@
+using Chat.Exceptions;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace Chat;
 
@@ -8,14 +10,22 @@ public class ServerService(HttpClient _client)
 
     public record Server(Guid ServerId, string ServerName);
     public record ServerDetail(Guid ServerId, string ServerName, int Capacity, List<string> ConnectedUsers);
+
+    public async Task<List<Server>> GetServers()
+    {
+        var url = Path.Join(ServerUrl, "/servers");
+        List<Server>? result = await GetAsync<List<Server>>(url);
+
+        return result!;
+    }
+
     public async Task<Server> GetServer(Guid serverId)
     {
         var query = $"?id={serverId}";
         var url = Path.Join(ServerUrl, "/server-detail", query);
-        HttpResponseMessage response = await _client.GetAsync(url);
-        ServerDetail result = await response.Content.ReadFromJsonAsync<ServerDetail>() ?? throw new Exception("No service found");
+        ServerDetail? result = await GetAsync<ServerDetail>(url);
 
-        return new(result.ServerId, result.ServerName);
+        return new(result!.ServerId, result.ServerName);
     }
 
     public async Task<ServerDetail> GetServerDetail(Guid serverId)
@@ -23,20 +33,54 @@ public class ServerService(HttpClient _client)
         var query = $"?id={serverId}";
         var url = Path.Join(ServerUrl, "/server-detail", query);
 
-        HttpResponseMessage response = await _client.GetAsync(url);
-        ServerDetail result = await response.Content.ReadFromJsonAsync<ServerDetail>() ?? throw new Exception("No service found");
+        ServerDetail? result = await GetAsync<ServerDetail>(url);
 
-        return result;
+        return result!;
     }
 
     public async Task<bool> CheckUsername(string username, Guid serverId)
     {
+        if(string.IsNullOrEmpty(username)) throw new ArgumentNullException(nameof(username));
+
         var query = $"?serverId={serverId}&username={username}";
         var url = Path.Join(ServerUrl, "/username-is-valid", query);
 
-        HttpResponseMessage response = await _client.GetAsync(url);
-        var result = await response.Content.ReadAsStringAsync();
+        var result = await GetAsync<bool>(url);
 
-        return Convert.ToBoolean(result);
+        return result;
+    }
+
+    async Task<T?> GetAsync<T>(string url)
+    {
+        HttpResponseMessage response;
+        APIResponse<object> result;
+        try
+        {
+            response = await _client.GetAsync(url);
+            result = await response.Content.ReadFromJsonAsync<APIResponse<object>>() ?? throw new ArgumentNullException();
+        }
+        catch (HttpRequestException)
+        {
+            throw new ServerConnectionException();
+        }
+        catch (TaskCanceledException)
+        {
+            throw new ServerConnectionException();
+        }
+
+        if (!result.Success)
+        {
+            throw new ServerError(result.Error!, result.Message!);
+        }
+
+        if(result.Data is JsonElement jsonElement)
+        {
+            return jsonElement.Deserialize<T>(options: new()
+            {
+                PropertyNameCaseInsensitive = true
+            });
+        }
+
+        throw new InvalidCastException();
     }
 }

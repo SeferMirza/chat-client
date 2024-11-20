@@ -8,64 +8,57 @@ public class ChatConnection(ITool _tool, ServerService _serverService, IRouter _
 
     public async override Task Open()
     {
-
         Console.CursorVisible = true;
+
+        Guid serverId;
+        while (true)
+        {
+            _tool.Write("Server ID: ");
+            string input = _tool.ReadLine();
+            if (!Guid.TryParse(input, out serverId))
+            {
+                _tool.ClearLine(1);
+                _tool.WriteLine("Invalid Server ID");
+            }
+            else
+            {
+                var servers = await _serverService.GetServers();
+                if (servers.Any(s => s.ServerId == serverId))
+                {
+                    break;
+                }
+                else
+                {
+                    _tool.ClearLine(1);
+                    _tool.WriteLine("Server not found! Try again.");
+                }
+            }
+        }
+
+        string username = string.Empty;
+        while (true)
+        {
+            _tool.Write("Username (only valid in the server): ");
+            username = _tool.ReadLine();
+
+            var response = await _serverService.CheckUsername(username, serverId);
+            if (response)
+            {
+                break;
+            }
+            else
+            {
+                _tool.ClearLine(1);
+                _tool.WriteLine("This username already exist in this room!");
+            }
+
+        }
 
         await chatHub.Connect();
 
         chatHub.Subscribe();
 
         List<Message> oldMessages;
-
-        Guid serverId;
-        while(true)
-        {
-            _tool.Write("Server ID: ");
-            string input = _tool.ReadLine();
-            if(Guid.TryParse(input, out serverId))
-            {
-                var server = await _serverService.GetServer(serverId);
-                if(server != null)
-                {
-                    break;
-                }
-                else
-                {
-                    _tool.ClearLine(1);
-                    _tool.WriteLine("Server Cannot Found! Try Again!");
-                }
-            }
-            else
-            {
-                _tool.ClearLine(1);
-                _tool.WriteLine("Invalid Server ID");
-            }
-        }
-
-        string username = string.Empty;
-        while(true)
-        {
-            _tool.Write("Username (only valid in the server): ");
-            username = _tool.ReadLine();
-            if(!string.IsNullOrEmpty(username))
-            {
-                var response = await _serverService.CheckUsername(username, serverId);
-                if(response)
-                {
-                    break;
-                }
-                else
-                {
-                    _tool.ClearLine(1);
-                    _tool.WriteLine("This username already exist in this room!");
-                }
-            }
-            else
-            {
-                    _tool.ClearLine(1);
-                    _tool.WriteLine("Username cannot be empty!");
-            }
-        }
 
         oldMessages = await chatHub.JoinServer(username, serverId);
 
@@ -104,6 +97,5 @@ public class ChatConnection(ITool _tool, ServerService _serverService, IRouter _
         }
 
         await chatHub.DisposeAsync();
-
     }
 }

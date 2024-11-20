@@ -1,19 +1,14 @@
-
-using System.Net.Http.Json;
-
 namespace Chat.Commands;
 
-public class ServerDetail(ITool _tool, HttpClient _client) : ICommand
+public class ServerDetail(ITool _tool, ServerService _serverService) : ICommand
 {
     public string Command => "/info";
-    const string ServerUrl = "http://localhost:5181/chat";
 
     public void Execute(params string[] args)
     {
         ExecuteAsync().GetAwaiter();
     }
 
-    record ServerDetailDTO(Guid ServerId, string ServerName, int Capacity, List<string> ConnectedUsers);
     public async Task ExecuteAsync(params string[] args)
     {
         try
@@ -21,10 +16,9 @@ public class ServerDetail(ITool _tool, HttpClient _client) : ICommand
             var filterParam = args.Where(arg => arg.StartsWith("--serverId")).FirstOrDefault() ?? throw new ArgumentNullException("ServerId must be given");
             var serverId = filterParam.Split(' ')[1];
             var query = $"?id={serverId}";
-            var url = Path.Join(ServerUrl, "/server-detail", query);
 
-            HttpResponseMessage response = await _client.GetAsync(url);
-            ServerDetailDTO? result = await response.Content.ReadFromJsonAsync<ServerDetailDTO>() ?? null;
+            ServerService.ServerDetail result = await _serverService.GetServerDetail(Guid.Parse(serverId));
+
             if (result != null)
             {
                 int maxWidth = result.ServerName.Length + 20 > 60 ? result.ServerName.Length + 20 : 60;
