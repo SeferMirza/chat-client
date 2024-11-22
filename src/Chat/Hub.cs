@@ -7,8 +7,8 @@ public sealed class Hub(ITool tool)
 {
     HubConnection? _connection;
     readonly ITool _tool = tool;
-    string? userId = string.Empty;
-    string? userName = string.Empty;
+    string? _userName = string.Empty;
+    Guid _serverId = Guid.Empty;
 
     private HubConnection CreateConnection()
     {
@@ -23,7 +23,7 @@ public sealed class Hub(ITool tool)
 
         await _connection.StartAsync();
 
-        Console.WriteLine("Server connected.");
+        _tool.WriteLine("Server connected.");
     }
 
     public void Subscribe()
@@ -33,16 +33,16 @@ public sealed class Hub(ITool tool)
 
         _connection.On<Message>("ReceiveMessage", (message) =>
         {
-            _tool.WriteChatMessage(message, userName);
+            _tool.WriteChatMessage(message, _userName);
         });
     }
 
-    public async Task SendMessage(Guid serverId, string message)
+    public async Task SendMessage(string message)
     {
         if (_connection == null)
             throw new ConnectionException();
 
-        await _connection.InvokeAsync("SendMessage", serverId, message);
+        await _connection.InvokeAsync("SendMessage", _serverId, message);
     }
 
     public async Task<List<Message>> JoinServer(string name, Guid serverId)
@@ -50,7 +50,8 @@ public sealed class Hub(ITool tool)
         if (_connection == null)
             throw new ConnectionException();
 
-        userName = name;
+        _userName = name;
+        _serverId = serverId;
         var oldMessages = await _connection.InvokeAsync<List<Message>>("JoinServer", name, serverId);
         _tool.WriteLine($"You joined server '{serverId}' as '{name}'.");
 

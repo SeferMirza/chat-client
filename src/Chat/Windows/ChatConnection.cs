@@ -62,6 +62,8 @@ public class ChatConnection(ITool _tool, ServerService _serverService, IRouter _
 
         oldMessages = await chatHub.JoinServer(username, serverId);
 
+        await Task.Delay(500);
+
         if (oldMessages is not null)
         {
             foreach (var message in oldMessages)
@@ -91,7 +93,7 @@ public class ChatConnection(ITool _tool, ServerService _serverService, IRouter _
                 if (!message.Equals(string.Empty) && command == null)
                 {
                     _tool.ClearLine(1);
-                    await chatHub.SendMessage(serverId, message);
+                    await chatHub.SendMessage(message);
                 }
             }
         }
