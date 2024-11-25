@@ -2,7 +2,7 @@ using Chat.Commands;
 
 namespace Chat.Windows;
 
-public class ChatConnection(ITool _tool, ServerService _serverService, IRouter _router, Hub chatHub, CommandRegistry commandRegistry) : Window
+public class ChatConnection(ITool _tool, ServerService _serverService, IRouter _router, ChatHub chatHub, CommandRegistry commandRegistry) : Window
 {
     public override string Name => nameof(ChatConnection);
 

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Chat;
 
-public sealed class Hub(ITool tool)
+public sealed class ChatHub(ITool tool)
 {
     HubConnection? _connection;
     readonly ITool _tool = tool;
@@ -13,7 +13,7 @@ public sealed class Hub(ITool tool)
     private HubConnection CreateConnection()
     {
         return new HubConnectionBuilder()
-            .WithUrl("http://localhost:5181/chatHub")
+            .WithUrl("http://192.168.1.113:5181/chatHub")
             .Build();
     }
 
