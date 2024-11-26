@@ -1,3 +1,5 @@
+using Chat.Consoles;
+
 namespace Chat.Commands;
 
 public class ServerDetail(ITool _tool, ServerService _serverService) : ICommand

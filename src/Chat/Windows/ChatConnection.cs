@@ -1,4 +1,6 @@
 using Chat.Commands;
+using Chat.Consoles;
+using Chat.Hubs;
 
 namespace Chat.Windows;
 

@@ -1,3 +1,4 @@
+using Chat.Consoles;
 using Chat.Windows;
 
 namespace Chat.Exceptions;

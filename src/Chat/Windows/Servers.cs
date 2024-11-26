@@ -1,3 +1,4 @@
+using Chat.Consoles;
 using static Chat.ServerService;
 
 namespace Chat.Windows;

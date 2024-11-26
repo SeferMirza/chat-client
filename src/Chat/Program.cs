@@ -1,6 +1,8 @@
 ﻿using Chat;
 using Chat.Commands;
+using Chat.Consoles;
 using Chat.Exceptions;
+using Chat.Hubs;
 using Chat.MenuOptions;
 using Chat.Windows;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,7 +19,6 @@ var serviceProvider = new ServiceCollection()
     .AddSingleton<ICommand, ExitServer>()
     .AddSingleton<ICommand, Help>()
     .AddSingleton<CommandRegistry>()
-    .AddSingleton<IMainMenuOptions, ServersOption>()
     .AddSingleton<IMainMenuOptions, VoiceOption>()
     .AddSingleton<IMainMenuOptions, ChatOption>()
     .AddSingleton<App>()

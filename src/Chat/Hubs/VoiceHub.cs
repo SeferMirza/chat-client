@@ -1,7 +1,9 @@
+using Chat.Consoles;
+using Chat.Exceptions;
 using Microsoft.AspNetCore.SignalR.Client;
 using NAudio.Wave;
 
-namespace Chat;
+namespace Chat.Hubs;
 
 public sealed class VoiceHub(ITool _tool)
 {
@@ -9,16 +11,25 @@ public sealed class VoiceHub(ITool _tool)
     private static WaveInEvent? _waveIn;
     private static WaveOutEvent? _waveOut;
     private static BufferedWaveProvider? _bufferedWaveProvider;
-    static Guid serverId = Guid.Empty;
+    static Guid _serverId = Guid.Empty;
 
-    public async Task Do()
+    private HubConnection CreateConnection()
     {
-        _connection = new HubConnectionBuilder()
-            .WithUrl("http://localhost:5181/voicehub")
+        return new HubConnectionBuilder()
+            .WithUrl("http://192.168.1.113:5181/voicehub")
             .Build();
+    }
+
+    public async Task Connect(Guid serverId, string username)
+    {
+        _serverId = serverId;
+        _connection ??= CreateConnection();
+
+        await _connection.StartAsync();
+
         _waveIn = new WaveInEvent();
         _waveIn.WaveFormat = new WaveFormat(44100, 1); // 44.1kHz, mono
-        _waveIn.DataAvailable += WaveIn_DataAvailable;
+        _waveIn.DataAvailable += WaveIn_DataAvailable!;
 
         _waveOut = new WaveOutEvent();
         _bufferedWaveProvider = new BufferedWaveProvider(new WaveFormat(44100, 1));
@@ -30,25 +41,22 @@ public sealed class VoiceHub(ITool _tool)
             _bufferedWaveProvider.AddSamples(audioData, 0, audioData.Length);
         });
 
-        await _connection.StartAsync();
-        _tool.WriteLine("Bağlantı kuruldu!");
-
-        _tool.Write("Adı giriniz: ");
-        string name = _tool.ReadLine();
-        _tool.Write("Oda adı giriniz: ");
-        serverId = Guid.Parse(_tool.ReadLine());
-        await _connection.InvokeAsync("JoinServer", name, serverId);
-        _tool.WriteLine($"{serverId} odasına katıldınız.");
+        await _connection.InvokeAsync("Connect", username, _serverId);
 
         _waveIn.StartRecording();
+    }
 
-        _tool.WriteLine("Çıkmak için bir tuşa basın...");
-        _tool.ReadKey();
-
-        await _connection.InvokeAsync("LeaveRoom", serverId);
-        _waveIn.StopRecording();
-        _waveOut.Stop();
-        await _connection.StopAsync();
+    public async Task DisposeAsync()
+    {
+        if(_connection != null)
+        {
+            _waveIn?.StopRecording();
+            _waveOut?.Stop();
+            _connection.Remove("ReceiveVoiceData");
+            await _connection.StopAsync();
+            await _connection.DisposeAsync();
+            _connection = null;
+        }
     }
 
     private static async void WaveIn_DataAvailable(object sender, WaveInEventArgs e)
@@ -57,7 +65,7 @@ public sealed class VoiceHub(ITool _tool)
         {
             if (_connection.State == HubConnectionState.Connected)
             {
-                await _connection.InvokeAsync("SendVoiceData", serverId, e.Buffer);
+                await _connection.InvokeAsync("SendVoiceData", _serverId, e.Buffer);
             }
         }
     }

@@ -1,7 +1,8 @@
+using Chat.Consoles;
 using Chat.Exceptions;
 using Microsoft.AspNetCore.SignalR.Client;
 
-namespace Chat;
+namespace Chat.Hubs;
 
 public sealed class ChatHub(ITool tool)
 {

@@ -1,4 +1,4 @@
-namespace Chat;
+namespace Chat.Consoles;
 
 public class ConsoleInfo : IConsoleInfo
 {

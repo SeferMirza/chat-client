@@ -1,3 +1,5 @@
+using Chat.Consoles;
+
 namespace Chat.Commands;
 
 public class Help(ITool _tool) : ICommand
