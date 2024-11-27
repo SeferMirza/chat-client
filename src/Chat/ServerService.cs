@@ -6,7 +6,7 @@ namespace Chat;
 
 public class ServerService(HttpClient _client)
 {
-    public string ServerUrl = "http://localhost:5181";
+    public string ServerUrl = "http://192.168.1.113:5181";
     public const string ChatServerPath = "/chat";
     public const string VoiceServerPath = "/voice";
 
