@@ -1,11 +1,9 @@
-using Chat.Consoles;
-using Chat.Exceptions;
 using Microsoft.AspNetCore.SignalR.Client;
 using NAudio.Wave;
 
 namespace Chat.Hubs;
 
-public sealed class VoiceHub(ITool _tool)
+public sealed class VoiceHub(ServerService serverService)
 {
     private static HubConnection? _connection;
     private static WaveInEvent? _waveIn;
@@ -16,7 +14,7 @@ public sealed class VoiceHub(ITool _tool)
     private HubConnection CreateConnection()
     {
         return new HubConnectionBuilder()
-            .WithUrl("http://192.168.1.113:5181/voicehub")
+            .WithUrl(Path.Join(serverService.ServerUrl, "/voicehub"))
             .Build();
     }
 
@@ -27,12 +25,16 @@ public sealed class VoiceHub(ITool _tool)
 
         await _connection.StartAsync();
 
-        _waveIn = new WaveInEvent();
-        _waveIn.WaveFormat = new WaveFormat(44100, 1); // 44.1kHz, mono
+        var voiceFormat = new WaveFormat(48000, 24, 1);  // 48kHz, 24-bit, stereo
+
+        _waveIn = new()
+        {
+            WaveFormat = voiceFormat
+        };
         _waveIn.DataAvailable += WaveIn_DataAvailable!;
 
         _waveOut = new WaveOutEvent();
-        _bufferedWaveProvider = new BufferedWaveProvider(new WaveFormat(44100, 1));
+        _bufferedWaveProvider = new BufferedWaveProvider(voiceFormat);
         _waveOut.Init(_bufferedWaveProvider);
         _waveOut.Play();
 
@@ -52,21 +54,19 @@ public sealed class VoiceHub(ITool _tool)
         {
             _waveIn?.StopRecording();
             _waveOut?.Stop();
+
             _connection.Remove("ReceiveVoiceData");
             await _connection.StopAsync();
             await _connection.DisposeAsync();
             _connection = null;
+
+            _waveIn?.Dispose();
+            _waveOut?.Dispose();
         }
     }
 
-    private static async void WaveIn_DataAvailable(object sender, WaveInEventArgs e)
+    private static void WaveIn_DataAvailable(object sender, WaveInEventArgs e)
     {
-        if(_connection != null)
-        {
-            if (_connection.State == HubConnectionState.Connected)
-            {
-                await _connection.InvokeAsync("SendVoiceData", _serverId, e.Buffer);
-            }
-        }
+        _connection?.InvokeAsync("SendVoiceData", _serverId, e.Buffer);
     }
 }

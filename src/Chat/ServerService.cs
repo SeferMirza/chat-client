@@ -6,15 +6,16 @@ namespace Chat;
 
 public class ServerService(HttpClient _client)
 {
-    const string ChatServerUrl = "http://localhost:5181/chat";
-    const string VoiceServerUrl = "http://192.168.1.113:5181/voice";
+    public string ServerUrl = "http://localhost:5181";
+    public const string ChatServerPath = "/chat";
+    public const string VoiceServerPath = "/voice";
 
     public record Server(Guid ServerId, string ServerName);
     public record ServerDetail(Guid ServerId, string ServerName, int Capacity, List<string> ConnectedUsers);
 
     public async Task<List<Server>> GetServers()
     {
-        var url = Path.Join(ChatServerUrl, "/servers");
+        var url = Path.Join(ServerUrl, ChatServerPath, "/servers");
         List<Server>? result = await GetAsync<List<Server>>(url);
 
         return result!;
@@ -23,7 +24,7 @@ public class ServerService(HttpClient _client)
     public async Task<Server> GetServer(Guid serverId)
     {
         var query = $"?id={serverId}";
-        var url = Path.Join(ChatServerUrl, "/server-detail", query);
+        var url = Path.Join(ChatServerPath, "/server-detail", query);
         ServerDetail? result = await GetAsync<ServerDetail>(url);
 
         return new(result!.ServerId, result.ServerName);
@@ -32,7 +33,7 @@ public class ServerService(HttpClient _client)
     public async Task<ServerDetail> GetServerDetail(Guid serverId)
     {
         var query = $"?id={serverId}";
-        var url = Path.Join(ChatServerUrl, "/server-detail", query);
+        var url = Path.Join(ChatServerPath, "/server-detail", query);
 
         ServerDetail? result = await GetAsync<ServerDetail>(url);
 
@@ -44,7 +45,7 @@ public class ServerService(HttpClient _client)
         if (string.IsNullOrEmpty(username)) throw new UsernameCannotBeNullException();
 
         var query = $"?serverId={serverId}&username={username}";
-        var url = Path.Join(ChatServerUrl, "/username-is-valid", query);
+        var url = Path.Join(ChatServerPath, "/username-is-valid", query);
 
         var result = await GetAsync<bool>(url);
 
@@ -82,7 +83,7 @@ public class ServerService(HttpClient _client)
 
     public async Task<List<Server>> GetVoiceServers()
     {
-        var url = Path.Join(VoiceServerUrl, "/servers");
+        var url = Path.Join(ServerUrl, VoiceServerPath, "/servers");
         List<Server>? result = await GetAsync<List<Server>>(url);
 
         return result!;
