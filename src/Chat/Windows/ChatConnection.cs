@@ -1,60 +1,20 @@
 using Chat.Commands;
 using Chat.Consoles;
+using Chat.Exceptions;
 using Chat.Hubs;
 
 namespace Chat.Windows;
 
 public class ChatConnection(ITool _tool, ServerService _serverService, IRouter _router, ChatHub chatHub, CommandRegistry commandRegistry) : Window
 {
+    private int _currentIndex;
+
     public override string Name => nameof(ChatConnection);
 
     public async override Task Open()
     {
-        Console.CursorVisible = true;
-
-        Guid serverId;
-        while (true)
-        {
-            _tool.Write("Server ID: ");
-            string input = _tool.ReadLine();
-            if (!Guid.TryParse(input, out serverId))
-            {
-                _tool.ClearLine(1);
-                _tool.WriteLine("Invalid Server ID");
-            }
-            else
-            {
-                var servers = await _serverService.GetServers();
-                if (servers.Any(s => s.ServerId == serverId))
-                {
-                    break;
-                }
-                else
-                {
-                    _tool.ClearLine(1);
-                    _tool.WriteLine("Server not found! Try again.");
-                }
-            }
-        }
-
-        string username = string.Empty;
-        while (true)
-        {
-            _tool.Write("Username (only valid in the server): ");
-            username = _tool.ReadLine();
-
-            var response = await _serverService.CheckUsername(username, serverId);
-            if (response)
-            {
-                break;
-            }
-            else
-            {
-                _tool.ClearLine(1);
-                _tool.WriteLine("This username already exist in this room!");
-            }
-
-        }
+        _tool.WriteLine("Username: ");
+        string username = _tool.ReadLine();
 
         await chatHub.Connect();
 
@@ -62,7 +22,7 @@ public class ChatConnection(ITool _tool, ServerService _serverService, IRouter _
 
         List<Message> oldMessages;
 
-        oldMessages = await chatHub.JoinServer(username, serverId);
+        oldMessages = await chatHub.JoinServer(username, _serverService.CurrentServer?.ServerId ?? throw new ServerConnectionException());
 
         await Task.Delay(500);
 
@@ -83,7 +43,7 @@ public class ChatConnection(ITool _tool, ServerService _serverService, IRouter _
             {
                 _tool.ClearLine(1);
 
-                await command.ExecuteAsync([$"--serverId {serverId}"]);
+                await command.ExecuteAsync([$"--serverId {_serverService.CurrentServer.ServerId}"]);
 
                 if (_router.Path != nameof(ChatConnection))
                 {

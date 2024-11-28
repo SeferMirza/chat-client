@@ -2,7 +2,7 @@ using Chat.Consoles;
 
 namespace Chat.Commands;
 
-public class ServerDetail(ITool _tool, ServerService _serverService) : ICommand
+public class ServerInfo(ITool _tool, ServerService _serverService) : ICommand
 {
     public string Command => "/info";
 
@@ -19,7 +19,7 @@ public class ServerDetail(ITool _tool, ServerService _serverService) : ICommand
             var serverId = filterParam.Split(' ')[1];
             var query = $"?id={serverId}";
 
-            ServerService.ServerDetail result = await _serverService.GetServerDetail(Guid.Parse(serverId));
+            ServerDetail result = await _serverService.GetServerDetail(Guid.Parse(serverId));
 
             if (result != null)
             {

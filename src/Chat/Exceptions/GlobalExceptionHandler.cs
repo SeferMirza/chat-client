@@ -18,7 +18,7 @@ public class GlobalExceptionHandler(ITool _tool, IRouter _router) : IExceptionHa
             }
             else if (key == ConsoleKey.M)
             {
-                _router.Navigate(nameof(MainMenu));
+                _router.Navigate(nameof(Servers));
             }
             else
             {

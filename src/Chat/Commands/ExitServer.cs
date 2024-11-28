@@ -9,7 +9,7 @@ public class ExitServer(IRouter _router) : ICommand
 
     public void Execute(string[]? args = default)
     {
-        _router.Navigate(nameof(MainMenu));
+        _router.Navigate(nameof(Servers));
     }
 
     public Task ExecuteAsync(string[]? args = default)

@@ -3,24 +3,20 @@ using Chat.Commands;
 using Chat.Consoles;
 using Chat.Exceptions;
 using Chat.Hubs;
-using Chat.MenuOptions;
 using Chat.Windows;
 using Microsoft.Extensions.DependencyInjection;
 
 var serviceProvider = new ServiceCollection()
     .AddTransient<ChatHub>()
     .AddTransient<VoiceHub>()
-    .AddKeyedSingleton<Window, MainMenu>(nameof(MainMenu))
     .AddKeyedSingleton<Window, Servers>(nameof(Servers))
-    .AddKeyedSingleton<Window, ChatConnection>(nameof(ChatConnection))
-    .AddKeyedSingleton<Window, VoiceConnection>(nameof(VoiceConnection))
+    .AddKeyedSingleton<Window, ChatConnection>(ServerType.Chat.ToString())
+    .AddKeyedSingleton<Window, VoiceConnection>(ServerType.Voice.ToString())
     .AddSingleton<IWindowManager, WindowManager>()
-    .AddSingleton<ICommand, ServerDetail>()
+    .AddSingleton<ICommand, ServerInfo>()
     .AddSingleton<ICommand, ExitServer>()
     .AddSingleton<ICommand, Help>()
     .AddSingleton<CommandRegistry>()
-    .AddSingleton<IMainMenuOptions, VoiceOption>()
-    .AddSingleton<IMainMenuOptions, ChatOption>()
     .AddSingleton<App>()
     .AddSingleton<ITool, ConsoleTool>()
     .AddSingleton<IRouter, Router>()

@@ -9,12 +9,13 @@ public sealed class VoiceHub(ServerService serverService)
     private static WaveInEvent? _waveIn;
     private static WaveOutEvent? _waveOut;
     private static BufferedWaveProvider? _bufferedWaveProvider;
+
     static Guid _serverId = Guid.Empty;
 
     private HubConnection CreateConnection()
     {
         return new HubConnectionBuilder()
-            .WithUrl(Path.Join(serverService.ServerUrl, "/voicehub"))
+            .WithUrl(Path.Join(serverService.BaseUrl, "/voicehub"))
             .Build();
     }
 

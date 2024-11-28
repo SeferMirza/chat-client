@@ -14,12 +14,12 @@ public class WindowManager : IWindowManager
     {
         _serviceProvider = serviceProvider;
         _router = router;
-        _current = _serviceProvider.GetRequiredKeyedService<Window>(_router.Path ?? nameof(MainMenu));
+        _current = _serviceProvider.GetRequiredKeyedService<Window>(_router.Path ?? nameof(Servers));
     }
 
     public async Task OpenCurrentWindow()
     {
-        _current = _serviceProvider.GetRequiredKeyedService<Window>(_router.Path ?? nameof(MainMenu));
+        _current = _serviceProvider.GetRequiredKeyedService<Window>(_router.Path ?? nameof(Servers));
         await _current.Open();
     }
 }

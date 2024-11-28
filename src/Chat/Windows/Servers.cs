@@ -1,25 +1,45 @@
 using Chat.Consoles;
-using static Chat.ServerService;
 
 namespace Chat.Windows;
 
 public class Servers(ITool _tool, ServerService _serverService, IRouter _router) : Window
 {
     public override string Name => nameof(Servers);
-
+    int _currentIndex = 0;
+    Server? _currentServer = null;
     public override async Task Open()
     {
-        List<Server> result = await _serverService.GetServers();
+        List<Server> servers = await _serverService.GetServers();
 
-        foreach (Server item in result)
+        while(true)
         {
-            _tool.WriteLine($"{item.ServerName}: {item.ServerId}");
-        }
+            _tool.ClearFull();
 
-        _tool.WriteLine($"{Environment.NewLine}Press ESC to return to the main menu");
-        if (_tool.ReadKey().Key == ConsoleKey.Escape)
-        {
-            _router.Navigate("MainMenu");
+            for (int i = 0; i < servers.Count; i++)
+            {
+                string publicFlag = servers[i].Public ? "Public" : "Private";
+                string serverShowLine = $"{servers[i].ServerName}: {servers[i].ServerId}, {servers[i].ServerType}, {publicFlag}";
+
+                if (i == _currentIndex)
+                    _tool.WriteLine($"> {serverShowLine}");
+                else
+                    _tool.WriteLine($"  {serverShowLine}");
+            }
+
+            ConsoleKey consoleKey = _tool.ReadKey().Key;
+            if(consoleKey == ConsoleKey.DownArrow) _currentIndex = (_currentIndex + 1) % servers.Count;
+            else if(consoleKey == ConsoleKey.UpArrow) _currentIndex = (_currentIndex - 1 + servers.Count) % servers.Count;
+            else if(consoleKey == ConsoleKey.Escape)
+            {
+                Environment.Exit(0);
+                break;
+            }
+            else if(consoleKey == ConsoleKey.Enter)
+            {
+                _serverService.JoinServer(servers[_currentIndex]);
+                _router.Navigate(servers[_currentIndex].ServerType.ToString());
+                break;
+            }
         }
     }
 }
