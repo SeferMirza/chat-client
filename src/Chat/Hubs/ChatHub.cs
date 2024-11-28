@@ -4,10 +4,9 @@ using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Chat.Hubs;
 
-public sealed class ChatHub(ITool tool, ServerService _service)
+public sealed class ChatHub(ITool _tool, ServerService _service)
 {
     HubConnection? _connection;
-    readonly ITool _tool = tool;
     string? _userName = string.Empty;
     Guid _serverId = Guid.Empty;
 
@@ -23,8 +22,6 @@ public sealed class ChatHub(ITool tool, ServerService _service)
         _connection ??= CreateConnection();
 
         await _connection.StartAsync();
-
-        _tool.WriteLine("Server connected.");
     }
 
     public void Subscribe()
@@ -54,7 +51,6 @@ public sealed class ChatHub(ITool tool, ServerService _service)
         _userName = name;
         _serverId = serverId;
         var oldMessages = await _connection.InvokeAsync<List<Message>>("JoinServer", name, serverId);
-        _tool.WriteLine($"You joined server '{serverId}' as '{name}'.");
 
         return oldMessages;
     }

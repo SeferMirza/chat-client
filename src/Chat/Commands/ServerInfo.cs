@@ -71,7 +71,7 @@ public class ServerInfo(ITool _tool, ServerService _serverService) : ICommand
                 Console.ForegroundColor = ConsoleColor.Magenta;
                 _tool.WriteLine("╚" + new string('═', maxWidth - 2) + "╝");
 
-                Console.ResetColor(); // TODO
+                Console.ResetColor();
             }
         }
         catch (Exception ex)
