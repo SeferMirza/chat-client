@@ -6,7 +6,7 @@ namespace Chat;
 
 public class ServerService(HttpClient _client)
 {
-    public string BaseUrl = "http://192.168.1.113:5181";
+    public string BaseUrl = "https://chat-server-production-fd56.up.railway.app";
     public string ServerApiPath => Path.Join(BaseUrl, "/server");
     public Server? CurrentServer { get; private set; }
 
@@ -21,7 +21,7 @@ public class ServerService(HttpClient _client)
     public async Task<Server> GetServer(Guid serverId)
     {
         var query = $"?id={serverId}";
-        var url = Path.Join("/server-detail", query);
+        var url = Path.Join(ServerApiPath, "/server-detail", query);
         ServerDetail? result = await GetAsync<ServerDetail>(url);
 
         return new(result!.ServerId, result.ServerName, result.ServerType, result.Public);
@@ -30,7 +30,7 @@ public class ServerService(HttpClient _client)
     public async Task<ServerDetail> GetServerDetail(Guid serverId)
     {
         var query = $"?id={serverId}";
-        var url = Path.Join("/server-detail", query);
+        var url = Path.Join(ServerApiPath, "/server-detail", query);
 
         ServerDetail? result = await GetAsync<ServerDetail>(url);
 

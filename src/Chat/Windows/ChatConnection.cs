@@ -43,7 +43,7 @@ public class ChatConnection(ITool _tool, ServerService _serverService, IRouter _
             {
                 _tool.ClearLine(1);
 
-                await command.ExecuteAsync([$"--serverId {_serverService.CurrentServer.ServerId}"]);
+                await command.ExecuteAsync();
 
                 if (_router.Path != nameof(ChatConnection))
                 {

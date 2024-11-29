@@ -5,12 +5,12 @@ public class ExitServer(IRouter _router) : ICommand
 {
     public string Command => "/exit";
 
-    public void Execute(string[]? args = default)
+    public void Execute()
     {
         _router.NavigateBack();
     }
 
-    public Task ExecuteAsync(string[]? args = default)
+    public Task ExecuteAsync()
     {
         Execute();
 

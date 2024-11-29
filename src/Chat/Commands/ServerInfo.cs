@@ -1,4 +1,5 @@
 using Chat.Consoles;
+using Chat.Exceptions;
 
 namespace Chat.Commands;
 
@@ -6,20 +7,16 @@ public class ServerInfo(ITool _tool, ServerService _serverService) : ICommand
 {
     public string Command => "/info";
 
-    public void Execute(params string[] args)
+    public void Execute()
     {
         ExecuteAsync().GetAwaiter();
     }
 
-    public async Task ExecuteAsync(params string[] args)
+    public async Task ExecuteAsync()
     {
         try
         {
-            var filterParam = args.Where(arg => arg.StartsWith("--serverId")).FirstOrDefault() ?? throw new ArgumentNullException("ServerId must be given");
-            var serverId = filterParam.Split(' ')[1];
-            var query = $"?id={serverId}";
-
-            ServerDetail result = await _serverService.GetServerDetail(Guid.Parse(serverId));
+            ServerDetail result = await _serverService.GetServerDetail(_serverService.CurrentServer?.ServerId ?? throw new ServerConnectionException());
 
             if (result != null)
             {

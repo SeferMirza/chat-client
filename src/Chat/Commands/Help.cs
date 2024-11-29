@@ -6,7 +6,7 @@ public class Help(ITool _tool) : ICommand
 {
     public string Command => "/help";
 
-    public void Execute(params string[] args)
+    public void Execute()
     {
         var help = "To see all command.";
         var info = "To see server info.";
@@ -45,7 +45,7 @@ public class Help(ITool _tool) : ICommand
         Console.ResetColor();
     }
 
-    public Task ExecuteAsync(params string[] args)
+    public Task ExecuteAsync()
     {
         Execute();
 
