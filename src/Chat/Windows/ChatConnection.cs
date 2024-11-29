@@ -45,7 +45,7 @@ public class ChatConnection(ITool _tool, ServerService _serverService, IRouter _
 
                 await command.ExecuteAsync();
 
-                if (_router.Path != nameof(ChatConnection))
+                if (_router.Path != nameof(ServerType.Chat))
                 {
                     break;
                 }

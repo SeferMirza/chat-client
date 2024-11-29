@@ -60,9 +60,9 @@ public class ServerInfo(ITool _tool, ServerService _serverService) : ICommand
                     Console.ForegroundColor = ConsoleColor.Green;
                     _tool.Write("    - ");
                     Console.ForegroundColor = ConsoleColor.White;
-                    _tool.Write(user);
+                    _tool.Write(user.Name);
                     Console.ForegroundColor = ConsoleColor.Magenta;
-                    _tool.Write(new string(' ', maxWidth - 7 - user.Length - 1) + "║" + Environment.NewLine);
+                    _tool.Write(new string(' ', maxWidth - 7 - user.Name.Length - 1) + "║" + Environment.NewLine);
                 }
 
                 Console.ForegroundColor = ConsoleColor.Magenta;
