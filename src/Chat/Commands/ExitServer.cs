@@ -1,6 +1,4 @@
 
-using Chat.Windows;
-
 namespace Chat.Commands;
 
 public class ExitServer(IRouter _router) : ICommand
@@ -9,7 +7,7 @@ public class ExitServer(IRouter _router) : ICommand
 
     public void Execute(string[]? args = default)
     {
-        _router.Navigate(nameof(Servers));
+        _router.NavigateBack();
     }
 
     public Task ExecuteAsync(string[]? args = default)

@@ -22,6 +22,6 @@ public class VoiceConnection(ServerService _server, VoiceHub voiceHub, ITool _to
         } while(_tool.ReadKey().Key != ConsoleKey.Escape);
 
         await voiceHub.DisposeAsync();
-        _router.Navigate(nameof(Servers));
+        _router.NavigateBack();
     }
 }
