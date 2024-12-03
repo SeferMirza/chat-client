@@ -16,7 +16,7 @@ public class ServerInfo(ITool _tool, ServerService _serverService) : ICommand
     {
         try
         {
-            ServerDetail result = await _serverService.GetServerDetail(_serverService.CurrentServer?.ServerId ?? throw new ServerConnectionException());
+            Server result = await _serverService.GetServerDetail(_serverService.CurrentServer?.ServerId ?? throw new ServerConnectionException());
 
             if (result != null)
             {

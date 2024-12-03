@@ -1,3 +1,4 @@
+using Chat.Exceptions;
 using Microsoft.AspNetCore.SignalR.Client;
 using NAudio.Wave;
 
@@ -5,11 +6,10 @@ namespace Chat.Hubs;
 
 public sealed class VoiceHub(ServerService serverService)
 {
-    private static HubConnection? _connection;
-    private static WaveInEvent? _waveIn;
-    private static WaveOutEvent? _waveOut;
-    private static BufferedWaveProvider? _bufferedWaveProvider;
-
+    static HubConnection? _connection;
+    static WaveInEvent? _waveIn;
+    static WaveOutEvent? _waveOut;
+    static BufferedWaveProvider? _bufferedWaveProvider;
     static Guid _serverId = Guid.Empty;
 
     private HubConnection CreateConnection()
@@ -44,6 +44,16 @@ public sealed class VoiceHub(ServerService serverService)
             _bufferedWaveProvider.AddSamples(audioData, 0, audioData.Length);
         });
 
+        _connection.On<User>("UserJoined", (user) =>
+        {
+            serverService.CurrentServer!.ConnectedUsers.Add(user);
+        });
+
+        _connection.On<User>("UserDisconnected", (user) =>
+        {
+            serverService.CurrentServer!.ConnectedUsers.Remove(user);
+        });
+
         await _connection.InvokeAsync("Connect", username, _serverId);
 
         _waveIn.StartRecording();
@@ -51,7 +61,7 @@ public sealed class VoiceHub(ServerService serverService)
 
     public async Task DisposeAsync()
     {
-        if(_connection != null)
+        if (_connection != null)
         {
             _waveIn?.StopRecording();
             _waveOut?.Stop();

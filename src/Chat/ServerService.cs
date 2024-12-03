@@ -22,17 +22,17 @@ public class ServerService(HttpClient _client)
     {
         var query = $"?id={serverId}";
         var url = Path.Join(ServerApiPath, "/server-detail", query);
-        ServerDetail? result = await GetAsync<ServerDetail>(url);
+        Server? result = await GetAsync<Server>(url);
 
-        return new(result!.ServerId, result.ServerName, result.ServerType, result.Public);
+        return result!;
     }
 
-    public async Task<ServerDetail> GetServerDetail(Guid serverId)
+    public async Task<Server> GetServerDetail(Guid serverId)
     {
         var query = $"?id={serverId}";
         var url = Path.Join(ServerApiPath, "/server-detail", query);
 
-        ServerDetail? result = await GetAsync<ServerDetail>(url);
+        Server? result = await GetAsync<Server>(url);
 
         return result!;
     }
